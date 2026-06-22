@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kira Interactive Dashboard Demo</title>
+
+  <!-- GridStack: kéo thả + resize card -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack.min.css" />
+
+  <style>
+    :root {
+      --bg: #f8f3ee;
+      --panel: rgba(255, 255, 255, 0.78);
+      --text: #2d180d;
+      --muted: #8a735f;
+      --brand: #b46a2b;
+      --brand-dark: #6b3517;
+      --line: rgba(180, 106, 43, 0.24);
+      --shadow: 0 18px 45px rgba(68, 36, 18, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 225, 196, 0.75), transparent 36%),
+        radial-gradient(circle at bottom right, rgba(204, 132, 70, 0.18), transparent 40%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .app {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #d98b43, #6b3517);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 42px);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      border: 0;
+      padding: 11px 16px;
+      border-radius: 999px;
+      background: var(--text);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(45, 24, 13, 0.12);
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .hint {
+      margin: 0 0 18px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .grid-stack {
+      min-height: 660px;
+    }
+
+    .grid-stack-item-content {
+      overflow: hidden;
+      border-radius: 26px;
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      padding: 18px 20px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: move;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 850;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .card-desc {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(180, 106, 43, 0.1);
+      color: var(--brand-dark);
+      white-space: nowrap;
+      font-weight: 750;
+    }
+
+    .chart {
+      flex: 1;
+      min-height: 180px;
+      width: 100%;
+    }
+
+    .kpi-wrap {
+      padding: 6px 20px 20px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      height: 100%;
+    }
+
+    .kpi {
+      border-radius: 22px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.56);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 110px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      margin-top: 10px;
+    }
+
+    .kpi-note {
+      color: var(--brand-dark);
+      font-size: 12px;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+
+    .grid-stack-placeholder > .placeholder-content {
+      border-radius: 26px;
+      border: 2px dashed rgba(180, 106, 43, 0.42);
+      background: rgba(180, 106, 43, 0.08);
+    }
+
+    @media (max-width: 780px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .kpi-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <section class="topbar">
+      <div class="brand">
+        <div class="logo">K</div>
+        <div>
+          <h1>Kira Interactive Dashboard</h1>
+          <p class="subtitle">Demo kéo thả card, phóng to/thu nhỏ chart, zoom dữ liệu và lưu layout.</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="saveLayout">Lưu layout</button>
+        <button id="resetLayout" class="secondary">Reset layout</button>
+      </div>
+    </section>
+
+    <p class="hint">
+      Cách test nhanh: kéo card bằng phần tiêu đề, resize ở góc/cạnh card.
+      Với chart: rê chuột để xem tooltip, dùng scroll hoặc pinch để zoom, kéo trong chart để pan.
+    </p>
+
+    <section class="grid-stack"></section>
+  </main>
+
+  <!-- GridStack -->
+  <script src="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack-all.js"></script>
+
+  <!-- ECharts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+
+  <script>
+    const STORAGE_KEY = "kira-dashboard-layout-v1";
+
+    const defaultLayout = [
+      { id: "kpi",     x: 0, y: 0, w: 4, h: 3 },
+      { id: "sales",   x: 4, y: 0, w: 4, h: 3 },
+      { id: "osa",     x: 8, y: 0, w: 4, h: 3 },
+      { id: "channel", x: 0, y: 3, w: 6, h: 4 },
+      { id: "area",    x: 6, y: 3, w: 6, h: 4 }
+    ];
+
+    const widgets = {
+      kpi: {
+        title: "Tổng quan KPI",
+        desc: "Card KPI có thể kéo thả và resize",
+        tag: "Overview",
+        type: "kpi"
+      },
+      sales: {
+        title: "Doanh số theo tháng",
+        desc: "Zoom / pan trực tiếp trên chart",
+        tag: "Line Chart",
+        type: "sales"
+      },
+      osa: {
+        title: "% OSA theo tuần",
+        desc: "Có dataZoom để phóng to vùng dữ liệu",
+        tag: "Bar Chart",
+        type: "osa"
+      },
+      channel: {
+        title: "Cơ cấu kênh bán hàng",
+        desc: "Hover để xem chi tiết từng kênh",
+        tag: "Donut",
+        type: "channel"
+      },
+      area: {
+        title: "Hiệu suất theo khu vực",
+        desc: "Resize card để chart tự fit lại",
+        tag: "Radar",
+        type: "area"
+      }
+    };
+
+    const chartInstances = {};
+
+    function getLayout() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return defaultLayout;
+
+      try {
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return defaultLayout;
+        return parsed;
+      } catch {
+        return defaultLayout;
+      }
+    }
+
+    function widgetHTML(id) {
+      const item = widgets[id];
+
+      if (item.type === "kpi") {
+        return `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">${item.title}</h2>
+                <p class="card-desc">${item.desc}</p>
+              </div>
+              <span class="pill">${item.tag}</span>
+            </div>
+
+            <div class="kpi-wrap">
+              <div class="kpi">
+                <div class="kpi-label">Revenue MTD</div>
+                <div class="kpi-value">5.7B</div>
+                <div class="kpi-note">▲ 12.4% vs LM</div>
+              </div>
+
+              <div class="kpi">
+                <div class="kpi-label">OSA</div>
+                <div class="kpi-value">94.8%</div>
+                <div class="kpi-note">▲ 2.1 pts</div>
+              </div>
+
+              <div class="kpi">
+                <div class="kpi-label">Visit Compliance</div>
+                <div class="kpi-value">88%</div>
+                <div class="kpi-note">▼ 3.5 pts</div>
+              </div>
+
+              <div class="kpi">
+                <div class="kpi-label">Open Issues</div>
+                <div class="kpi-value">37</div>
+                <div class="kpi-note">Need follow-up</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">${item.title}</h2>
+              <p class="card-desc">${item.desc}</p>
+            </div>
+            <span class="pill">${item.tag}</span>
+          </div>
+          <div id="chart-${id}" class="chart"></div>
+        </div>
+      `;
+    }
+
+    const grid = GridStack.init({
+      column: 12,
+      cellHeight: 92,
+      margin: 12,
+      float: true,
+      animate: true,
+      draggable: {
+        handle: ".card-header"
+      },
+      resizable: {
+        handles: "all"
+      }
+    });
+
+    function renderDashboard() {
+      grid.removeAll(false);
+
+      getLayout().forEach(item => {
+        const node = {
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+          id: item.id,
+          content: widgetHTML(item.id)
+        };
+
+        grid.addWidget(node);
+      });
+
+      setTimeout(initCharts, 80);
+    }
+
+    function saveLayout() {
+      const layout = grid.engine.nodes.map(node => ({
+        id: node.id,
+        x: node.x,
+        y: node.y,
+        w: node.w,
+        h: node.h
+      }));
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+      alert("Đã lưu layout. Refresh trang sẽ giữ lại vị trí hiện tại.");
+    }
+
+    function resetLayout() {
+      localStorage.removeItem(STORAGE_KEY);
+      Object.values(chartInstances).forEach(chart => chart.dispose());
+      Object.keys(chartInstances).forEach(key => delete chartInstances[key]);
+      renderDashboard();
+    }
+
+    function initCharts() {
+      initSalesChart();
+      initOsaChart();
+      initChannelChart();
+      initAreaChart();
+      resizeAllCharts();
+    }
+
+    function createChart(id) {
+      const el = document.getElementById(`chart-${id}`);
+      if (!el) return null;
+
+      if (chartInstances[id]) {
+        chartInstances[id].dispose();
+      }
+
+      chartInstances[id] = echarts.init(el);
+      return chartInstances[id];
+    }
+
+    function initSalesChart() {
+      const chart = createChart("sales");
+      if (!chart) return;
+
+      chart.setOption({
+        grid: { left: 46, right: 24, top: 30, bottom: 58 },
+        tooltip: { trigger: "axis" },
+        xAxis: {
+          type: "category",
+          boundaryGap: false,
+          data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+        yAxis: { type: "value" },
+        dataZoom: [
+          { type: "inside", start: 0, end: 100 },
+          { type: "slider", start: 0, end: 100, bottom: 14 }
+        ],
+        series: [
+          {
+            name: "Revenue",
+            type: "line",
+            smooth: true,
+            areaStyle: {},
+            data: [3.2, 3.8, 4.1, 4.9, 5.2, 5.7, 5.5, 6.1, 6.4, 6.9, 7.2, 7.8]
+          }
+        ]
+      });
+    }
+
+    function initOsaChart() {
+      const chart = createChart("osa");
+      if (!chart) return;
+
+      chart.setOption({
+        grid: { left: 46, right: 24, top: 30, bottom: 58 },
+        tooltip: { trigger: "axis" },
+        xAxis: {
+          type: "category",
+          data: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"]
+        },
+        yAxis: {
+          type: "value",
+          min: 80,
+          max: 100,
+          axisLabel: { formatter: "{value}%" }
+        },
+        dataZoom: [
+          { type: "inside", start: 0, end: 100 },
+          { type: "slider", start: 0, end: 100, bottom: 14 }
+        ],
+        series: [
+          {
+            name: "OSA",
+            type: "bar",
+            data: [91, 92, 89, 94, 96, 95, 93, 97, 92, 94, 95, 98],
+            label: {
+              show: true,
+              position: "top",
+              formatter: "{c}%"
+            }
+          }
+        ]
+      });
+    }
+
+    function initChannelChart() {
+      const chart = createChart("channel");
+      if (!chart) return;
+
+      chart.setOption({
+        tooltip: { trigger: "item" },
+        legend: { bottom: 8 },
+        series: [
+          {
+            name: "Channel",
+            type: "pie",
+            radius: ["45%", "68%"],
+            center: ["50%", "45%"],
+            avoidLabelOverlap: true,
+            data: [
+              { value: 42, name: "MT" },
+              { value: 28, name: "GT" },
+              { value: 16, name: "CVS" },
+              { value: 14, name: "Ecom" }
+            ]
+          }
+        ]
+      });
+    }
+
+    function initAreaChart() {
+      const chart = createChart("area");
+      if (!chart) return;
+
+      chart.setOption({
+        tooltip: {},
+        radar: {
+          radius: "62%",
+          indicator: [
+            { name: "Revenue", max: 100 },
+            { name: "OSA", max: 100 },
+            { name: "Visit", max: 100 },
+            { name: "Display", max: 100 },
+            { name: "Issue Fix", max: 100 }
+          ]
+        },
+        series: [
+          {
+            name: "Area Performance",
+            type: "radar",
+            data: [
+              {
+                value: [88, 95, 82, 76, 70],
+                name: "North"
+              },
+              {
+                value: [78, 90, 86, 82, 84],
+                name: "South"
+              }
+            ]
+          }
+        ]
+      });
+    }
+
+    function resizeAllCharts() {
+      Object.values(chartInstances).forEach(chart => chart.resize());
+    }
+
+    grid.on("resizestop dragstop", function () {
+      resizeAllCharts();
+    });
+
+    window.addEventListener("resize", resizeAllCharts);
+
+    document.getElementById("saveLayout").addEventListener("click", saveLayout);
+    document.getElementById("resetLayout").addEventListener("click", resetLayout);
+
+    renderDashboard();
+  </script>
+</body>
+</html>
